@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>小幫手 - 住戶標記</title>
+    <link rel="stylesheet" href="rtstyle.css">
+</head>
+<body>
+
+<nav id="rt-topbar">
+    <div id="rt-topbar-left">
+        <img src="../../icon/icon-192x192.png" alt="icon">
+        <span class="rt-title">住戶標記</span>
+    </div>
+    <div id="rt-topbar-right">
+        <button id="save-btn">💾 回存</button>
+        <span id="rt-clock"></span>
+    </div>
+</nav>
+
+<div class="postal-print-content">
+    <div class="top-title">住戶標記清單</div>
+
+    <table class="tb-printlist">
+        <thead>
+            <tr class="title">
+                <th> 序號 <span class="sort-btn no-print" data-field="odr"></span></th>
+                <th> 戶別 <span class="sort-btn no-print" data-field="adr"></span></th>
+                <th>姓名集合</th>
+            </tr>
+        </thead>
+        <tbody id="residentBody">
+            <tr id="2308070041"><td>001</td><td>(A5)30號2樓</td><td></td></tr>
+            <tr id="2308070042"><td>002</td><td>(A5)30號3樓</td><td></td></tr>
+            <tr id="2308070043"><td>003</td><td>(A5)30號4樓</td><td></td></tr>
+            <tr id="2308070044"><td>004</td><td>(A5)30號5樓</td><td></td></tr>
+            <tr id="2308070045"><td>005</td><td>(A5)30號6樓</td><td></td></tr>
+            <tr id="2308070046"><td>006</td><td>(A5)30號7樓</td><td></td></tr>
+            <tr id="2308070047"><td>007</td><td>(A5)30號8樓</td><td></td></tr>
+            <tr id="2308070048"><td>008</td><td>(A5)30號9樓</td><td></td></tr>
+            <tr id="2308070049"><td>009</td><td>(A5)30號10樓</td><td></td></tr>
+            <tr id="2308070050"><td>010</td><td>(A5)30號11樓</td><td></td></tr>
+            <tr id="2308070051"><td>011</td><td>(A5)30號12樓</td><td></td></tr>
+            <tr id="2308070052"><td>012</td><td>(A5)30號13樓</td><td></td></tr>
+            <tr id="2308070053"><td>013</td><td>(A5)30號14樓</td><td></td></tr>
+            <tr id="2308070054"><td>014</td><td>(A5)30號15樓</td><td></td></tr>
+            <tr id="2308070055"><td>015</td><td>(A5)30號16樓</td><td></td></tr>
+            <tr id="2308070056"><td>016</td><td>(A5)30號17樓</td><td></td></tr>
+            <tr id="2308070057"><td>017</td><td>(A5)30號18樓</td><td></td></tr>
+            <tr id="2308070058"><td>018</td><td>(A5)30號19樓</td><td></td></tr>
+            <tr id="2308070059"><td>019</td><td>(A5)30號20樓</td><td></td></tr>
+            <tr id="2308070060"><td>020</td><td>(A5)30號21樓</td><td></td></tr>
+            <tr id="2308070061"><td>021</td><td>(A5)30號22樓</td><td></td></tr>
+            <tr id="2308070062"><td>022</td><td>(A5)30號23樓</td><td></td></tr>
+            <tr id="2308070063"><td>023</td><td>(A5)30號24樓</td><td></td></tr>
+            <tr id="2308070064"><td>024</td><td>(A3)32號2樓</td><td></td></tr>
+            <tr id="2308070065"><td>025</td><td>(A3)32號3樓</td><td></td></tr>
+            <tr id="2308070066"><td>026</td><td>(A3)32號4樓</td><td></td></tr>
+            <tr id="2308070067"><td>027</td><td>(A3)32號5樓</td><td></td></tr>
+            <tr id="2308070068"><td>028</td><td>(A3)32號6樓</td><td></td></tr>
+            <tr id="2308070069"><td>029</td><td>(A3)32號7樓</td><td></td></tr>
+            <tr id="2308070070"><td>030</td><td>(A3)32號8樓</td><td></td></tr>
+            <tr id="2308070071"><td>031</td><td>(A3)32號9樓</td><td></td></tr>
+            <tr id="2308070072"><td>032</td><td>(A3)32號10樓</td><td></td></tr>
+            <tr id="2308070073"><td>033</td><td>(A3)32號11樓</td><td></td></tr>
+            <tr id="2308070074"><td>034</td><td>(A3)32號12樓</td><td></td></tr>
+            <tr id="2308070075"><td>035</td><td>(A3)32號13樓</td><td></td></tr>
+            <tr id="2308070076"><td>036</td><td>(A3)32號14樓</td><td></td></tr>
+            <tr id="2308070077"><td>037</td><td>(A3)32號15樓</td><td></td></tr>
+            <tr id="2308070078"><td>038</td><td>(A3)32號16樓</td><td></td></tr>
+            <tr id="2308070079"><td>039</td><td>(A3)32號17樓</td><td></td></tr>
+            <tr id="2308070080"><td>040</td><td>(A3)32號18樓</td><td></td></tr>
+            <tr id="2308070081"><td>041</td><td>(A3)32號19樓</td><td></td></tr>
+            <tr id="2308070082"><td>042</td><td>(A3)32號20樓</td><td></td></tr>
+            <tr id="2308070083"><td>043</td><td>(A3)32號21樓</td><td></td></tr>
+            <tr id="2308070084"><td>044</td><td>(A3)32號22樓</td><td></td></tr>
+            <tr id="2308070085"><td>045</td><td>(A3)32號23樓</td><td></td></tr>
+            <tr id="2308070086"><td>046</td><td>(A3)32號24樓</td><td></td></tr>
+            <tr id="2308070087"><td>047</td><td>(A2)36號2樓</td><td></td></tr>
+            <tr id="2308070088"><td>048</td><td>(A2)36號3樓</td><td></td></tr>
+            <tr id="2308070089"><td>049</td><td>(A2)36號4樓</td><td></td></tr>
+            <tr id="2308070090"><td>050</td><td>(A2)36號5樓</td><td></td></tr>
+            <tr id="2308070091"><td>051</td><td>(A2)36號6樓</td><td></td></tr>
+            <tr id="2308070092"><td>052</td><td>(A2)36號7樓</td><td></td></tr>
+            <tr id="2308070093"><td>053</td><td>(A2)36號8樓</td><td></td></tr>
+            <tr id="2308070094"><td>054</td><td>(A2)36號9樓</td><td></td></tr>
+            <tr id="2308070095"><td>055</td><td>(A2)36號10樓</td><td></td></tr>
+            <tr id="2308070096"><td>056</td><td>(A2)36號11樓</td><td></td></tr>
+            <tr id="2308070097"><td>057</td><td>(A2)36號12樓</td><td></td></tr>
+            <tr id="2308070098"><td>058</td><td>(A2)36號13樓</td><td></td></tr>
+            <tr id="2308070099"><td>059</td><td>(A2)36號14樓</td><td></td></tr>
+            <tr id="2308070100"><td>060</td><td>(A2)36號15樓</td><td></td></tr>
+            <tr id="2308070101"><td>061</td><td>(A2)36號16樓</td><td></td></tr>
+            <tr id="2308070102"><td>062</td><td>(A2)36號17樓</td><td></td></tr>
+            <tr id="2308070103"><td>063</td><td>(A2)36號18樓</td><td></td></tr>
+            <tr id="2308070104"><td>064</td><td>(A2)36號19樓</td><td></td></tr>
+            <tr id="2308070105"><td>065</td><td>(A2)36號20樓</td><td></td></tr>
+            <tr id="2308070106"><td>066</td><td>(A2)36號21樓</td><td></td></tr>
+            <tr id="2308070107"><td>067</td><td>(A2)36號22樓</td><td></td></tr>
+            <tr id="2308070108"><td>068</td><td>(A2)36號23樓</td><td></td></tr>
+            <tr id="2308070109"><td>069</td><td>(A2)36號24樓</td><td></td></tr>
+            <tr id="2308070110"><td>070</td><td>(A1)38號2樓</td><td></td></tr>
+            <tr id="2308070111"><td>071</td><td>(A1)38號3樓</td><td></td></tr>
+            <tr id="2308070112"><td>072</td><td>(A1)38號4樓</td><td></td></tr>
+            <tr id="2308070113"><td>073</td><td>(A1)38號5樓</td><td></td></tr>
+            <tr id="2308070114"><td>074</td><td>(A1)38號6樓</td><td></td></tr>
+            <tr id="2308070115"><td>075</td><td>(A1)38號7樓</td><td></td></tr>
+            <tr id="2308070116"><td>076</td><td>(A1)38號8樓</td><td></td></tr>
+            <tr id="2308070117"><td>077</td><td>(A1)38號9樓</td><td></td></tr>
+            <tr id="2308070118"><td>078</td><td>(A1)38號10樓</td><td></td></tr>
+            <tr id="2308070119"><td>079</td><td>(A1)38號11樓</td><td></td></tr>
+            <tr id="2308070120"><td>080</td><td>(A1)38號12樓</td><td></td></tr>
+            <tr id="2308070121"><td>081</td><td>(A1)38號13樓</td><td></td></tr>
+            <tr id="2308070122"><td>082</td><td>(A1)38號14樓</td><td></td></tr>
+            <tr id="2308070123"><td>083</td><td>(A1)38號15樓</td><td></td></tr>
+            <tr id="2308070124"><td>084</td><td>(A1)38號16樓</td><td></td></tr>
+            <tr id="2308070125"><td>085</td><td>(A1)38號17樓</td><td></td></tr>
+            <tr id="2308070126"><td>086</td><td>(A1)38號18樓</td><td></td></tr>
+            <tr id="2308070127"><td>087</td><td>(A1)38號19樓</td><td></td></tr>
+            <tr id="2308070128"><td>088</td><td>(A1)38號20樓</td><td></td></tr>
+            <tr id="2308070129"><td>089</td><td>(A1)38號21樓</td><td></td></tr>
+            <tr id="2308070130"><td>090</td><td>(A1)38號22樓</td><td></td></tr>
+            <tr id="2308070131"><td>091</td><td>(A1)38號23樓</td><td></td></tr>
+            <tr id="2308070132"><td>092</td><td>(A1)38號24樓</td><td></td></tr>
+            <tr id="2308070133"><td>093</td><td>28號1樓</td><td></td></tr>
+            <tr id="2308070134"><td>094</td><td>30號1樓</td><td></td></tr>
+            <tr id="2308070135"><td>095</td><td>32號1樓</td><td></td></tr>
+            <tr id="2308070136"><td>096</td><td>36號1樓</td><td></td></tr>
+            <tr id="2308070137"><td>097</td><td>38號1樓</td><td></td></tr>
+            <tr id="2308070138"><td>098</td><td>管理室</td><td></td></tr>
+            <tr id="2503100435"><td>099</td><td>管理室-WAWA</td><td></td></tr>
+        </tbody>
+    </table>
+</div>
+
+<div id="rt-popup-overlay" style="display:none;">
+    <div id="rt-popup-box">
+        <div id="rt-popup-title"></div>
+        <input id="rt-popup-input" type="text" maxlength="16" placeholder="最多16字元">
+        <div id="rt-popup-date-row">
+            <label for="rt-popup-date">到期清除：</label>
+            <input id="rt-popup-date" type="date">
+            <button id="rt-popup-date-clear" title="清除日期">✕</button>
+        </div>
+        <div id="rt-popup-btn-row">
+            <button class="rt-popup-btn confirm">確認</button>
+            <button class="rt-popup-btn cancel">取消</button>
+        </div>
+    </div>
+</div>
+
+<script src="rtscript.js"></script>
+</body>
+</html>
