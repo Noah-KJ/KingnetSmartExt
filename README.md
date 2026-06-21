@@ -96,6 +96,4 @@ KingnetSmartExt/
 
 - **動態載入**：`loader.js` 依 URL 路由決定載入哪些模組，避免不必要的腳本注入
 - **全域模組**：`lightbox.js`、`inject-nav.js`、`inject-mark.js` 在所有官方頁面皆會注入
-- **跨域請求 (CORS)**：已獲得 `host_permissions` 授權，可與 `kingnetsmart.com.tw` 及本地 API 交換資料
-- **Signed URL**：包裹照片使用 Google Cloud Storage Signed URL，快照時無條件更新以避免過期
 - **Service Worker**：`background.js` 以 Manifest V3 Service Worker 運行，處理所有跨頁面狀態
