@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>小幫手 - 交接清單</title>
+    <link rel="stylesheet" href="ilstyle.css">
+</head>
+<body>
+
+<div class="postal-print-content">
+    <div class="top-title">
+        安管交接班複合清單
+        <div class="date" id="TimeStamp">載入中...</div>
+    </div>
+
+    <table class="tb-printlist">
+        <thead>
+            <tr class="title">
+                <th style="width:50px;">
+                    <label class="cr-styled checkBox">
+                        <input type="checkbox" id="topChk" data-gtm-form-interact-field-id="2">
+                        <i class="glyphicon" style="vertical-align: text-top; background-color: white;"></i>
+                    </label>
+                </th>
+                <th style="width:70px;"># <span class="sort-btn no-print" data-field="odr">↕</span></th>
+                <th style="width:100px;">包裹 <span class="sort-btn no-print" data-field="cat">↕</span></th>
+                <th style="width:135px;">地址 <span class="sort-btn no-print" data-field="adr">↕</span></th>
+                <th style="width:135px;">收/寄件人 </th>
+                <th style="width:100px;">位置 <span class="sort-btn no-print" data-field="loc">↕</span></th>
+                <th style="width:100px;">日期 <span class="sort-btn no-print" data-field="time">↕</span></th>
+                <th>備註</th>
+            </tr>
+        </thead>
+        <tbody id="packageBody"></tbody>
+    </table>
+
+    <div style="overflow: hidden;">
+        <!-- 位置 × 分類 交叉統計表（動態產生） -->
+        <table class="tb-total tb-cross" id="crossTable">
+        </table>
+
+        <!-- 現金獨立表 -->
+        <table class="tb-total tb-cash">
+            <tr class="title">
+                <th colspan="2"><span class="sum">現金</span></th>
+            </tr>
+            <tr>
+                <td class="txt">筆數</td>
+                <td id="cashCount">0</td>
+            </tr>
+            <tr>
+                <td class="txt">總金額</td>
+                <td id="cashAmount">0</td>
+            </tr>
+        </table>
+
+        <div class="sign">
+            <p>交接簽名</p>
+            <ul>
+                <li style="margin-left:90px;">交班人員</li>
+                <li style="margin-left:90px;">接班人員</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script src="ilscript.js"></script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+{
+	"manifest_version": 3,
+	"name": "智生活小幫手",
+	"version": "7.29735256",
+	"description": "有問題找Noah：pleroma502204@gmail.com ",
+	"permissions": [
+		"tabs",
+		"scripting",
+		"storage",
+		"activeTab",
+		"alarms",
+		"idle",
+		"offscreen"
+	],
+	"host_permissions": [
+		"https://www.kingnetsmart.com.tw/*",
+		"http://127.0.0.1:5000/*"
+	],
+	"background": {
+		"service_worker": "background.js"
+	},
+	"action": {
+		"default_popup": "popup/popup.html",
+		"default_title": "智生活小幫手",
+		"default_icon": {
+			"16": "icon/icon-16x16.png",
+			"32": "icon/icon-32x32.png",
+			"192": "icon/icon-192x192.png"
+		}
+	},
+
+	"content_scripts": [
+		{
+		"matches": ["*://www.kingnetsmart.com.tw/*"],
+		"js": ["content_scripts/loader.js"],
+		"run_at": "document_idle"
+		},
+		{
+		"comment": "MAIN world 的 Bridge",
+		"matches": ["*://www.kingnetsmart.com.tw/community/collectionRecord_v2.aspx*"],
+		"js": ["content_scripts/bridge.js"],
+		"world": "MAIN",
+		"run_at": "document_idle"
+		}
+	],
+	"web_accessible_resources": [
+		{
+		"resources": ["content_scripts/*.js","pages/*"],
+		"matches": ["*://www.kingnetsmart.com.tw/*"]
+		}
+	],
+
+	"commands": {
+		"package-for-cardkey": {
+			"suggested_key": { "default": "Alt+Z", "mac": "Alt+Z" },
+			"description": "開啟包裹領取的感應磁扣介面"
+		},
+		"package-for-address": {
+			"suggested_key": { "default": "Alt+X", "mac": "Alt+X" },
+			"description": "開啟包裹領取的戶別選擇介面"
+		},
+		"facility-leave": {
+			"suggested_key": { "default": "Alt+C", "mac": "Alt+C" },
+			"description": "開啟公設離場清單"
+		},
+		"facility-01": { "description": "公設進場（第01項）" },
+		"facility-02": { "description": "公設進場（第02項）" },
+		"facility-03": { "description": "公設進場（第03項）" },
+		"facility-04": { "description": "公設進場（第04項）" },
+		"facility-05": { "description": "公設進場（第05項）" },
+		"facility-06": { "description": "公設進場（第06項）" },
+		"facility-07": { "description": "公設進場（第07項）" },
+		"facility-08": { "description": "公設進場（第08項）" },
+		"facility-09": { "description": "公設進場（第09項）" },
+		"facility-10": { "description": "公設進場（第10項）" },
+		"facility-11": { "description": "公設進場（第11項）" },
+		"facility-12": { "description": "公設進場（第12項）" },
+		"facility-13": { "description": "公設進場（第13項）" },
+		"facility-14": { "description": "公設進場（第14項）" },
+		"facility-15": { "description": "公設進場（第15項）" },
+		"facility-16": { "description": "公設進場（第16項）" },
+		"facility-17": { "description": "公設進場（第17項）" },
+		"facility-18": { "description": "公設進場（第18項）" },
+		"facility-19": { "description": "公設進場（第19項）" },
+		"facility-20": { "description": "公設進場（第20項）" }
+	},
+	"icons": {
+		"16": "icon/icon-16x16.png",
+		"32": "icon/icon-32x32.png",
+		"192": "icon/icon-192x192.png"
+	}
+}

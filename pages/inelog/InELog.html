@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>小幫手 - 現金收付</title>
+    <link rel="stylesheet" href="inestyle.css">
+</head>
+<body>
+
+<!-- ── Fixed Top Bar ── -->
+<nav id="rt-topbar">
+    <div id="rt-topbar-left">
+        <img src="../../icon/icon-192x192.png" alt="icon">
+        <span class="rt-title">現金收付</span>
+        <span id="totalCash">$0</span>
+    </div>
+    <div id="rt-topbar-right">
+        <button id="saveBtn">💾 回存</button>
+        <span id="rt-clock"></span>
+    </div>
+</nav>
+
+<div class="ine-content">
+    <div class="tabs">
+        <button class="tab-link active" id="btn-changed">🚩 待確認 <span id="sumChanged"></span></button>
+        <button class="tab-link" id="btn-normal">✅ 已確認 <span id="sumNormal"></span></button>
+        <button class="tab-link" id="btn-diff">📊 總收付</button>
+    </div>
+
+    <div id="changedTab" class="tab-content active">
+        <div id="container-changed"></div>
+    </div>
+    <div id="normalTab" class="tab-content">
+        <div id="container-normal"></div>
+    </div>
+    <div id="diffTab" class="tab-content">
+        <div id="container-diff"></div>
+    </div>
+</div>
+
+<!-- ╔══════════════════════════════╗ -->
+<!-- ║         Templates            ║ -->
+<!-- ╚══════════════════════════════╝ -->
+
+<template id="tpl-card">
+    <div class="resident-card">
+        <div class="card-header">
+            <div class="card-title">
+                <span class="addr"></span>
+                <span class="group-total"></span>
+            </div>
+            <div class="card-header-right"></div>
+        </div>
+    </div>
+</template>
+
+<template id="tpl-chk-btn">
+    <button class="chk-btn">✅ 確認無誤</button>
+</template>
+
+<template id="tpl-chk-done">
+    <span class="chk-done">已確認</span>
+</template>
+
+<template id="tpl-cid-block">
+    <div class="cid-block">
+        <div class="cid-header">
+            <span class="cid-odr"></span>
+            <span class="cid-name"></span>
+            <span class="cid-right"></span>
+        </div>
+    </div>
+</template>
+
+<template id="tpl-dep-badge">
+    <span class="dep-badge">已領取</span>
+</template>
+
+<template id="tpl-cid-current">
+    <span class="cid-current"></span>
+</template>
+
+<template id="tpl-pid-section">
+    <div class="pid-section">
+        <div class="pid-label">📦 同戶登記包裹</div>
+    </div>
+</template>
+
+<template id="tpl-pid-item">
+    <div class="pid-item">
+        <span class="pid-odr"></span>
+        <span class="pid-time pid-name"></span>
+        <span class="pid-time pid-ts"></span>
+        <button class="pid-confirm">✅</button>
+    </div>
+</template>
+
+<template id="tpl-diff-footer">
+    <div class="diff-footer">
+        <div class="diff-footer-line">
+            <span class="diff-label">上次確認後總額</span>
+            <span class="diff-amount diff-base-total"></span>
+        </div>
+        <div class="diff-footer-line diff-total-line">
+            <span class="diff-label">當前總額</span>
+            <span class="diff-amount diff-current-total"></span>
+        </div>
+    </div>
+</template>
+
+<template id="tpl-diff-entry">
+    <div class="diff-footer-line diff-entry">
+        <span class="diff-entry-info"></span>
+        <span class="diff-amount diff-delta"></span>
+    </div>
+</template>
+
+<template id="tpl-no-data">
+    <div class="no-data"></div>
+</template>
+
+<script src="inescript.js"></script>
+</body>
+</html>

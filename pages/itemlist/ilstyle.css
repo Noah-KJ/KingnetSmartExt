@@ -1,0 +1,162 @@
+/* 基礎重置 */
+* { -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; }
+body { margin: 0; padding: 20px; font-family: "Microsoft JhengHei", sans-serif; }
+
+/* 針對列印的強制設定 */
+@media print {
+    *, :after, :before {
+        color: #000 !important;
+        text-shadow: none !important;
+        background: 0 0 !important;
+        -webkit-box-shadow: none !important;
+        box-shadow: none !important;
+    }
+    thead { display: table-header-group; }
+    tr { page-break-inside: avoid; }
+    .no-print { display: none !important; }
+    body { padding: 0; }
+}
+
+/* 容器寬度 */
+.postal-print-content { width: 960px; margin: 0 auto; }
+
+/* 標題樣式 */
+.postal-print-content .top-title {
+    font-size: 22px;
+    text-align: center;
+    position: relative;
+    margin-bottom: 15px;
+    padding-top: 20px;
+    font-weight: bold;
+}
+.postal-print-content .top-title .date {
+    font-size: 15px;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    font-weight: normal;
+}
+
+/* 表格通用樣式 */
+table { border-spacing: 0; border-collapse: collapse; background-color: transparent; }
+.tb-printlist, .tb-total { width: 100%; border: 1px solid #ddd; }
+
+/* 標題列 (灰色背景) */
+tr.title {
+    background-color: #eee !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color: #5f5f5f;
+}
+
+.tb-printlist tr.title th, .tb-total tr.title th {
+    font-size: 17px;
+    padding: 1px 8px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.item-chk {
+  transform: scale(1.8);
+  margin: 0;
+}
+
+
+/* 單元格樣式 */
+.tb-printlist td {
+    padding: 8px;
+    border: 1px solid #ddd;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 15px;
+}
+
+/* 特定欄位對齊 */
+.tb-printlist tr td:nth-child(n+3) {    /* 序號以外都靠左 */
+  text-align: left;
+  padding-left: 10px;
+}
+.tb-printlist tr td:last-child {        /* 備註也是，但不需要額外 padding-left */
+  text-align: left;
+}
+
+/* 統計表格 (左下方) */
+.tb-total { width: 300px; float: left; margin: 5px; table-layout: fixed;}
+.tb-total td { padding: 8px; border: 1px solid #ddd; text-align: center; font-size: 17px; }
+.tb-total .sum { font-size: 26px; font-weight: bold; }
+.tb-total tr.sep { border-top: 2px solid #000 !important; }
+.tb-total td.txt {
+    font-weight:bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 簽名框 (右下方) */
+.postal-print-content .sign {
+    clear: none;
+    margin: 5px;
+    width: 330px;
+    height: 120px;
+    float: right; /* 改為靠右對齊 */
+    border: 2px solid #000;
+    position: relative;
+}
+.postal-print-content .sign p { margin: 10px; font-size: 22px; font-weight: bold; }
+.postal-print-content .sign ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    width: 100%;
+}
+.postal-print-content .sign ul li { display: inline-block; font-size: 15px; }
+
+/* 排序按鈕 */
+.sort-btn {
+    cursor: pointer;
+    color: #1a73e8;
+    font-size: 12px; /* 加大字體 */
+    border: 1px solid #1a73e8;
+    padding: 2px 4px;
+    border-radius: 4px;
+    background: #fff;
+    display: inline-block;
+    min-width: 24px; /* 固定寬度防止跳動 */
+    text-align: center;
+    line-height: 1;
+    user-select: none; /* 防止連續點擊選中文字 */
+    transition: all 0.2s;
+}
+
+.sort-btn:hover {
+    background-color: #e8f0fe;
+}
+
+/* 列印時隱藏排序按鈕 */
+@media print {
+    .no-print { display: none !important; }
+}
+
+/* 交叉表：寬度拉開 */
+.tb-cross {
+    float: left;
+    width: 600px;
+    margin: 5px;
+}
+
+/* 只對表格內 class="txt" 的第一欄強制寬度 */
+.tb-cross .txt {
+    width: 200px;
+    text-align: right;
+    padding-left: 10px;
+}
+
+/* 現金表：靠右，垂直排在簽名框上方 */
+.tb-cash {
+    float: right;
+    width: 330px;
+    margin: 5px;
+}

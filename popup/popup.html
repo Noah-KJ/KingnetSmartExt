@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <!-- 備份列 -->
+    <div class="backup-bar">
+        <button id="exportBtn">💾 存到電腦</button>
+        <button id="importBtn">📂 載入資料</button>
+        <input type="file" id="importFile" accept=".json" style="display:none;">
+    </div>
+
+    <!-- 載入確認列（預設隱藏） -->
+    <div id="importConfirm" class="import-confirm" style="display:none;">
+        <span class="confirm-label">選擇載入方式</span>
+        <button id="confirmOverwrite">覆蓋</button>
+        <button id="confirmMerge">合併</button>
+        <button id="confirmCancel">取消</button>
+    </div>
+
+    <!-- API 設定區塊（與翻牌區塊互斥） -->
+    <div id="apiSetupSection" style="display:none;">
+        <p class="api-hint">尚未設定列印伺服器，請輸入 API 網址：</p>
+        <div class="api-input-row">
+            <input id="apiInput" type="text" placeholder="http://127.0.0.1:5000/print">
+            <button id="apiSaveBtn">儲存</button>
+        </div>
+    </div>
+
+    <!-- 翻牌列印區塊 -->
+    <div id="printSection" class="main-controller">
+                    <button id="modeSwitcher" class="switch-btn">
+                        <span style="font-size: 16px; writing-mode: vertical-rl;">🔄 模 式 選 擇</span>
+                    </button>
+
+                    <div class="flip-board">
+                        <div id="boardInner" class="board-inner">
+                            <div class="mode-panel">
+                                <div class="mode-title">自動列印</div>
+                                <div style="font-size: 11px; color: #53B1A4; margin-top: 5px;">● 系統監控中</div>
+                            </div>
+                            <div class="mode-panel">
+                                <div class="mode-title">手選列印</div>
+                                <button id="manualPrintBtn" class="action-btn">列印勾選項目</button>
+                            </div>
+                            <div class="mode-panel">
+                                <div class="custom-wrap">
+                                    <textarea id="qrInput" placeholder="輸入內容..."></textarea>
+                                    <div class="custom-footer">
+                                        <label class="type-toggle">
+                                            <input type="checkbox" id="typeToggle">
+                                            <span class="type-label"></span>
+                                        </label>
+                                        <button id="customSendBtn" class="action-btn">列印</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mode-panel">
+                                <div class="mode-title">自動列印</div>
+                                <div style="font-size: 11px; color: #53B1A4; margin-top: 5px;">● 系統監控中</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    <script src="popup.js"></script>
+</body>
+</html>

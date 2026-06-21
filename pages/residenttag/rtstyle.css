@@ -1,0 +1,328 @@
+/* ══════════════════════════════════════════
+   住戶標記清單 · rtstyle.css
+   ══════════════════════════════════════════ */
+
+:root {
+    --accent:       #12B3A4;
+    --accent-hover: #109084;
+    --bg:           #ECECEC;
+    --surface:      #ffffff;
+    --border:       #ccc;
+    --text:         #2f2f2f;
+    --muted:        #5f5f5f;
+    --red:          #c44536;
+    --green:        #10b981;
+    --radius:       4px;
+    --navbar-h:     56px;
+    --mono:         'JetBrains Mono', 'Courier New', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: Arial, 微軟正黑體, 新細明體, sans-serif;
+    font-size: 15px;
+    background: var(--bg);
+    color: var(--text);
+    padding-top: var(--navbar-h);
+}
+
+/* ── Top Bar ─────────────────────────────────────────────────────────────────── */
+#rt-topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: var(--navbar-h);
+    background: #12B3A4;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 1000;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* 左側：logo + 標題 */
+#rt-topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #fff;
+}
+#rt-topbar-left img {
+    width: 32px;
+    height: 32px;
+}
+#rt-topbar-left .rt-title {
+    font-size: 28px;
+    font-weight: bold;
+    color: #fff;
+    letter-spacing: 1px;
+}
+
+/* 右側：時間 + 回存按鈕（直排） */
+#rt-topbar-right {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 4px;
+}
+#rt-clock {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+#save-btn {
+    font-family: inherit;
+    font-size: 20px;
+    padding: 2px 10px;
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+}
+#save-btn:hover  { background: rgba(255,255,255,0.28); }
+#save-btn:active { background: rgba(255,255,255,0.10); }
+#save-btn.success { border-color: #a7f3d0; color: #a7f3d0; }
+
+/* ── 頁面主體 ────────────────────────────────────────────────────────────────── */
+.postal-print-content {
+    width: 100%;
+    background: var(--surface);
+    padding: 24px 30px;
+}
+
+/* 標題 */
+.top-title {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border);
+    color: var(--text);
+}
+
+/* ── 表格 ────────────────────────────────────────────────────────────────────── */
+table { border-spacing: 0; border-collapse: collapse; width: 100%; }
+
+.tb-printlist {
+    border: 1px solid var(--border);
+    font-size: 17px;
+}
+
+.tb-printlist tr.title {
+    background-color: #ecefee;
+    color: var(--text);
+}
+.tb-printlist tr.title th {
+    font-size: 17px;
+    padding: 10px 8px;
+    border: 1px solid var(--border);
+    text-align: center;
+    font-weight: normal;
+}
+
+.tb-printlist th:nth-child(1) { width: 80px; }
+.tb-printlist th:nth-child(2) { width: 180px; }
+
+.tb-printlist td {
+    padding: 10px 8px;
+    border: 1px solid var(--border);
+    text-align: center;
+    vertical-align: middle;
+    font-size: 17px;
+    line-height: initial;
+}
+.tb-printlist tr td:nth-child(n+2) { text-align: left; padding-left: 12px; }
+.tb-printlist tbody tr:hover { background-color: #FCF3CC; }
+.tb-printlist tbody tr:hover td { background-color: #FCF3CC !important; }
+
+/* ── 地址欄 tag tooltip ──────────────────────────────────────────────────────── */
+td.has-tag {
+    color: var(--accent);
+    font-weight: bold;
+    position: relative;
+    cursor: help;
+}
+td.has-tag::after {
+    content: attr(data-tag);
+    display: none;
+    position: fixed;
+    background: rgba(15, 23, 42, 0.92);
+    color: #38bdf8;
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 20px;
+    padding: 5px 12px;
+    border-radius: 4px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 9999;
+    top: var(--tip-y);
+    left: var(--tip-x);
+}
+td.has-tag:hover::after { display: block; }
+
+/* ── 姓名標籤 ────────────────────────────────────────────────────────────────── */
+.name-tag {
+    display: inline-flex;
+    align-items: center;
+    background-color: #f1f5f9;
+    padding: 3px 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin: 2px 3px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background 0.15s, border-color 0.15s;
+}
+.name-tag:hover { border-color: var(--accent); background: #e6f7f5; }
+.name-tag em    { font-style: normal; }
+
+.name-tag.note {
+    background-color: #fee2e2;
+    color: var(--red);
+    border-color: #fca5a5;
+    position: relative;
+}
+.name-tag.note:hover { background-color: #fecaca; }
+.name-tag.note::after {
+    content: attr(data-note);
+    display: none;
+    position: fixed;
+    background: rgba(15, 23, 42, 0.92);
+    color: #f97316;
+    font-weight: bold;
+    font-size: 20px;
+    padding: 5px 12px;
+    border-radius: 4px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 9999;
+    top: var(--tip-y);
+    left: var(--tip-x);
+}
+.name-tag.note:hover::after { display: block; }
+
+.name-tag.pvt { background-color: #fef9c3; color: #854d0e; border-color: #fde047; }
+
+/* ── 動作按鈕 ────────────────────────────────────────────────────────────────── */
+.action-btns {
+    display: inline-flex;
+    margin-left: 8px;
+    border-left: 1px solid var(--border);
+    padding-left: 6px;
+    gap: 4px;
+}
+.action-btns button {
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 3px;
+    font-size: 14px;
+    border-radius: 3px;
+    transition: background 0.15s;
+}
+.btn-confirm { color: var(--green); }
+.btn-confirm:hover { background: #dcfce7; }
+.btn-cancel  { color: var(--red); }
+.btn-cancel:hover  { background: #fee2e2; }
+
+/* ── 浮動彈窗 ────────────────────────────────────────────────────────────────── */
+#rt-popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+#rt-popup-box {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    min-width: 300px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+#rt-popup-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--text);
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 8px;
+}
+#rt-popup-input {
+    font-family: inherit;
+    font-size: 15px;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    width: 100%;
+}
+#rt-popup-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(18,179,164,0.15);
+}
+#rt-popup-date-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    color: var(--muted);
+}
+#rt-popup-date {
+    font-family: var(--mono);
+    font-size: 14px;
+    padding: 5px 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    flex: 1;
+}
+#rt-popup-date-clear {
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 15px;
+}
+#rt-popup-date-clear:hover { color: var(--red); }
+#rt-popup-btn-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+.rt-popup-btn {
+    font-family: inherit;
+    font-size: 15px;
+    padding: 6px 16px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.15s;
+}
+.rt-popup-btn.confirm { background: var(--accent); color: #fff; border-color: var(--accent); }
+.rt-popup-btn.confirm:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+.rt-popup-btn.cancel  { background: var(--surface); color: var(--muted); }
+.rt-popup-btn.cancel:hover  { background: #f1f5f9; color: var(--text); }
+
+/* ── 排序按鈕 ────────────────────────────────────────────────────────────────── */
+.sort-btn { cursor: pointer; user-select: none; font-size: 14px; color: var(--muted); }
+.sort-btn::after { content: " ↕"; opacity: 0.5; }
+.sort-btn.active { color: var(--accent); font-weight: bold; }
+.sort-btn.active[data-order='asc']::after  { content: " ▲"; opacity: 1; }
+.sort-btn.active[data-order='desc']::after { content: " ▼"; opacity: 1; }
