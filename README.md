@@ -26,6 +26,7 @@ KingnetSmartExt/
     ├── content.js              # [同步層] 包裹清單快照同步與路由分派
     ├── sync.js                 # [同步層] 退貨／寄物清單同步
     ├── lightbox.js             # [介面層] 包裹圖片燈箱注入與領取彈窗圖示
+    ├── showui.js               # [介面層] 官方燈箱即時呈現包裹相關訊息
     ├── inject-nav.js           # [介面層] 全域導覽列注入
     └── inject-mark.js          # [介面層] 住戶標記注入
 ```
