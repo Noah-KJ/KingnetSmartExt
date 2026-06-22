@@ -9,8 +9,7 @@
 		"storage",
 		"activeTab",
 		"alarms",
-		"idle",
-		"offscreen"
+		"idle"
 	],
 	"host_permissions": [
 		"https://www.kingnetsmart.com.tw/*",
