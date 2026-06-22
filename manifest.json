@@ -14,9 +14,6 @@
 	"host_permissions": [
 		"https://www.kingnetsmart.com.tw/*"
 	],
-	"optional_permissions": [
-		"http://*/*"
-	],
 	"optional_host_permissions": [
 		"http://*/*"
 	],
