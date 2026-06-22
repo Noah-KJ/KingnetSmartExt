@@ -8,65 +8,10 @@
 import { collectIdSnapshot, parseRowsById } from './parser.js';
 
 // ─── 頁面路由 ────────────────────────────────────────────
-const init = () => {
-    const match = Object.entries(LIST_CONFIG)
-        .find(([_, cfg]) => location.href.includes(cfg.pattern));
+const match = Object.entries(LIST_CONFIG)
+    .find(([_, cfg]) => location.href.includes(cfg.pattern));
 
-    if (match) waitForRows(match[0]);
-};
-
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init, { once: true });
-} else {
-    init();
-}
-
-// ─── 核心入口 ────────────────────────────────────────────
-function waitForRows(listType) {
-	const { tableId } = LIST_CONFIG[listType];
-	const table = document.getElementById(tableId);
-	// 如果 Table 還沒掛載到 DOM，用 RequestAnimationFrame 續命等待
-	if (!table) {
-		requestAnimationFrame(() => waitForRows(listType));
-		return;
-	}
-
-	// Firebase 可能在 Loading 隱藏後才開始非同步 map 資料到 DOM。
-	const rowObserver = new MutationObserver((mutations, obs) => {
-		const rows = Array.from(table.rows).filter(tr => tr.id);
-
-		// 只要抓到有 id 的行，且長度 > 0，就視為資料抵達
-		if (rows.length > 0) {
-			// 停止監聽「列表增加」，轉向執行同步
-			obs.disconnect();
-			// 稍微緩衝 200ms，確保該行的資料內容（如姓名、條碼）也填寫完畢
-			setTimeout(() => runSyncFlow(listType), 200);
-		}
-	});
-	// 監聽子節點變動與整個子樹，防止 SPA 只改 innerHTML
-	rowObserver.observe(table, { childList: true, subtree: true });
-
-	// 註冊後立即檢查：防止資料在 Observer 註冊前就已存在於 DOM（競態）
-	const existingRows = Array.from(table.rows).filter(tr => tr.id);
-	if (existingRows.length > 0) {
-		rowObserver.disconnect();
-		setTimeout(() => runSyncFlow(listType), 200);
-		return;
-	}
-
-	// 兜底機制：若 2 秒內沒東西，判定為空清單
-	setTimeout(() => {
-		if (Array.from(table.rows).filter(tr => tr.id).length === 0) {
-			rowObserver.disconnect();
-			// 通知 background 清單為空，讓它更新 listStorage
-			chrome.runtime.sendMessage({
-				action: "QUERY_ALL_IDS_AND_SNAPSHOT",
-				type:   listType,
-				rows:   [],
-			});
-		}
-	}, 2000);
-}
+if (match) runSyncFlow(match[0]);
 
 // ─── Bridge：跨 world 呼叫頁面方法 ──────────────────────
 /**

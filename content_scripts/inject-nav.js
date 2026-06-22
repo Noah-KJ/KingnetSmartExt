@@ -14,11 +14,7 @@ const NAV_ITEMS = [
 
 // export 導出初始化函數
 export async function initNav() {
-    let target = null;
-    for (let i = 0; i < 3; i++) {
-        target = await waitFor("id", "header");
-        if (target) break;
-    }
+    const target = document.getElementById("header");
     if (!target || target.querySelector(".ext-nav-group")) return;
     _injectButtons(target.querySelector(":scope > *:first-child"));
 }

@@ -191,21 +191,7 @@
 	function waitForRowsThenInject(tbodySelector, getRows) {
 		const tbody = document.querySelector(tbodySelector);
 		if (!tbody) return;
-
-		// 若已有資料，直接注入
-		if (tbody.rows.length > 0) {
-			injectImgIcons(getRows());
-			return;
-		}
-
-		// 否則等第一批資料進來
-		const obs = new MutationObserver((_, o) => {
-			if (tbody.rows.length > 0) {
-				o.disconnect();
-				injectImgIcons(getRows());
-			}
-		});
-		obs.observe(tbody, { childList: true });
+		injectImgIcons(getRows());
 	}
 
 	// ─── 領取彈窗監聽 ────────────────────────────────────
@@ -215,19 +201,16 @@
 	 * 監聽 class 出現 active 時觸發。
 	 */
 	function watchOneClick() {
-		const interval = setInterval(() => {
-			const el = document.getElementById('oneClickWrapDiv');
-			if (!el) return;
-			clearInterval(interval);
+		const el = document.getElementById('oneClickWrapDiv');
+		if (!el) return;
 
-			new MutationObserver(() => {
-				if (!el.classList.contains('active')) return;
-				waitForRowsThenInject(
-					'#oneClickPostalList',
-					() => Array.from(document.querySelectorAll('#oneClickPostalList tr'))
-				);
-			}).observe(el, { attributes: true, attributeFilter: ['class'] });
-		}, 500);
+		new MutationObserver(() => {
+			if (!el.classList.contains('active')) return;
+			waitForRowsThenInject(
+				'#oneClickPostalList',
+				() => Array.from(document.querySelectorAll('#oneClickPostalList tr'))
+			);
+		}).observe(el, { attributes: true, attributeFilter: ['class'] });
 	}
 
 	/**

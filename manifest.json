@@ -41,10 +41,10 @@
 		},
 		{
 		"comment": "MAIN world 的 Bridge",
-		"matches": ["*://www.kingnetsmart.com.tw/community/collectionRecord_v2.aspx*"],
+		"matches": ["*://www.kingnetsmart.com.tw/*"],
 		"js": ["content_scripts/bridge.js"],
 		"world": "MAIN",
-		"run_at": "document_idle"
+		 "run_at": "document_start"
 		}
 	],
 	"web_accessible_resources": [

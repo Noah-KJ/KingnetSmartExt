@@ -192,32 +192,18 @@ function _scanPassVerify() {
 
 // Observer 工廠
 function _watchTable(listType) {
-	const { tableId } = LIST_CONFIG[listType];
-	const tbody = document.getElementById(tableId);
-	if (!tbody) return;
-	const table = tbody.closest('table');
+    const { tableId } = LIST_CONFIG[listType];
+    const tbody = document.getElementById(tableId);
+    if (!tbody) return;
+    const table = tbody.closest('table');
 
-	function tryInit() {
-		if (tbody.querySelectorAll('tr[id]').length) {
-			_scanTable(listType);
-			return true;
-		}
-		return false;
-	}
+    _scanTable(listType); // 直接掃，不等
 
-	if (!tryInit()) {
-		const obs = new MutationObserver((_, o) => {
-			if (!tryInit()) return;
-			o.disconnect();
-		});
-		obs.observe(tbody, { childList: true, subtree: true });
-	}
-
-	table.addEventListener('click', e => {
-		if (e.target.closest('th')) {
-			setTimeout(() => _scanTable(listType), 0);
-		}
-	});
+    table.addEventListener('click', e => {
+        if (e.target.closest('th')) {
+            setTimeout(() => _scanTable(listType), 0);
+        }
+    });
 }
 
 function _watchRepeat(el, scanFn) {

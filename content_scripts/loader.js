@@ -4,7 +4,18 @@
  * ║          負責動態載入模組與初始化引導防呆檢查        ║
  * ╚══════════════════════════════════════════════════════╝
  */
+
 (async () => {
+    // 等待登入完成信號（BrowserPushToken PATCH）
+    const ready = await Promise.race([
+        new Promise(resolve =>
+            window.addEventListener("__smartlife_page_ready", resolve, { once: true })
+        ),
+        new Promise(resolve => setTimeout(() => resolve("timeout"), 10000))
+    ]);
+
+    if (ready === "timeout") return; // 未登入或認證失效，靜默退出
+
     const url = location.href;
     const getURL = (path) => chrome.runtime.getURL(`content_scripts/${path}`);
 
@@ -72,7 +83,6 @@
     await initNav();
     await initMark(); 
 })();
-
 
 // ═════════════════════════════════════════════════════════════════════════
 //      以下為初始化防呆機制的私有函式 (自動導向、生成與下載)
