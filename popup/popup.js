@@ -56,9 +56,26 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // API 儲存按鈕
-    apiSaveBtn.addEventListener("click", () => {
+    apiSaveBtn.addEventListener("click", async () => {
         const url = apiInput.value.trim();
         if (!url) return;
+
+        let origin;
+        try {
+            origin = new URL(url).origin + "/*";
+        } catch {
+            alert("網址格式不正確");
+            return;
+        }
+
+        const granted = await new Promise(resolve =>
+            chrome.permissions.request({ origins: [origin] }, resolve)
+        );
+        if (!granted) {
+            alert("需要授權才能連接印表機");
+            return;
+        }
+
         chrome.runtime.sendMessage({ action: "SET_PRINT_API", url }, (res) => {
             if (res?.status === "success") showPrintSection();
         });

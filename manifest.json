@@ -12,8 +12,13 @@
 		"idle"
 	],
 	"host_permissions": [
-		"https://www.kingnetsmart.com.tw/*",
-		"http://127.0.0.1:5000/*"
+		"https://www.kingnetsmart.com.tw/*"
+	],
+	"optional_permissions": [
+		"http://*/*"
+	],
+	"optional_host_permissions": [
+		"http://*/*"
 	],
 	"background": {
 		"service_worker": "background.js"
