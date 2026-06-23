@@ -62,7 +62,7 @@ async function runSyncFlow(listType) {
 		if (!rows.length) return;
 
 		// [寄物頁面] 並行抓取所有現金單的歷史記錄
-		// 與後續流程並行，不阻塞 QUERY_ALL_IDS_AND_SNAPSHOT
+		// 與後續流程並行，不阻塞 EXTRACT_ALL_ROW_SNAPSHOT
 		const cashRecordsPromise = listType === "collection"
 			? fetchAllCashRecords(rows)
 			: Promise.resolve([]);
@@ -71,7 +71,7 @@ async function runSyncFlow(listType) {
 		// background 自行比對差異，回傳需要完整解析的 newIds
 		const [{ newIds, isFirstLoad }, cashRecords] = await Promise.all([
 			chrome.runtime.sendMessage({
-				action: "QUERY_ALL_IDS_AND_SNAPSHOT",
+				action: "EXTRACT_ALL_ROW_SNAPSHOT",
 				type:   listType,
 				rows,
 			}),

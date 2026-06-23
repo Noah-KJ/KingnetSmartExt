@@ -5,15 +5,19 @@
  * ╚══════════════════════════════════════════════════════╝
  *
  * 訊息來源
- *  content.js    →  CONTENT_READY | QUERY_ALL_IDS_AND_SNAPSHOT | SUBMIT_NEW_ITEMS
- *  sync.js       →  QUERY_ALL_IDS_AND_SNAPSHOT | SUBMIT_NEW_ITEMS | SUBMIT_CASH_RECORDS
- *  popup.js      →  GET_SELECTED_IDS | SEND_TO_PRINTER | EXPORT_STORAGE | IMPORT_STORAGE
- * 					  SET_POPUP_MODE | GET_POPUP_MODE
+ *  loader.js     →  GET_RTSTORE
+ *  content.js    →  CONTENT_READY | EXTRACT_ALL_ROW_SNAPSHOT | SUBMIT_NEW_ITEMS
+ *  sync.js       →  EXTRACT_ALL_ROW_SNAPSHOT | SUBMIT_NEW_ITEMS | SUBMIT_CASH_RECORDS
+ *  popup.js      →  GET_SELECTED_IDS | SEND_TO_PRINTER | 
+ * 					  EXPORT_STORAGE | IMPORT_STORAGE
+ * 					  GET_POPUP_MODE | SET_POPUP_MODE
+ * 					  GET_PRINT_API | SET_PRINT_API
  *  ilscript.js   →  GET_ITEM_STORE
  *  inescript.js  →  GET_INESTORE | SET_INESTORE
  *  inject-nav.js →  OPEN_MY_PAGE
  *  rtscript.js   →  GET_RTSTORE | SET_RTSTORE
  *  automation.js →  SET_BTN_LIMIT
+ *  lightbox.js   →  REFRESH_IMG_URLS | IMG_URL_REFRESHED
  */
 
 // ─── 常數 ────────────────────────────────────────────────
@@ -185,7 +189,7 @@ const MESSAGE_HANDLERS = {
 		sendResponse({ ...settings });
 	},
 	
-	async QUERY_ALL_IDS_AND_SNAPSHOT({ type, rows }, sendResponse) {
+	async EXTRACT_ALL_ROW_SNAPSHOT({ type, rows }, sendResponse) {
 		const oldSet     = listStorage[type];
 		const isFirstLoad = oldSet.has("0");
 		const incoming   = new Map(rows.map(r => [r.id, r]));
@@ -282,6 +286,8 @@ const MESSAGE_HANDLERS = {
 		}
 
 		// ── 5. 存檔 ──────────────────────────────────────────
+		settings.lastSync[type] = Date.now();
+
 		saveStorage();
 	},
 
@@ -423,6 +429,14 @@ const MESSAGE_HANDLERS = {
 	 */
 	OPEN_MY_PAGE({ page }, sendResponse) {
 		chrome.tabs.create({ url: chrome.runtime.getURL(page) });
+	},
+
+	/**
+	 * [rtscript.js] 住戶標記初始化：獲取 RTStore
+	 */
+	CHECK_RTSTORE(message, sendResponse) {
+		const hasRTStore = RTStore && Object.keys(RTStore).length > 0;
+		sendResponse( hasRTStore );
 	},
 
 	/**
@@ -633,13 +647,28 @@ const MESSAGE_HANDLERS = {
 	},
 };
 
-// 統一訊息入口：查表派發，async handler 包一層 IIFE 確保 sendResponse 保持開放
+// 統一訊息入口：查表派發，async handler 包一層 IIFE 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const handler = MESSAGE_HANDLERS[message.action];
+	
     if (!handler) return false;
-    (async () => handler(message, sendResponse, sender))();
-    return true;
+
+    if (handler.constructor.name === 'AsyncFunction') {
+        (async () => {								 // 非同步
+            try {
+                await handler(message, sendResponse, sender);
+            } catch (err) {
+                console.error(`執行 ${message.action} 失敗:`, err);
+                sendResponse({ status: "error", error: err.message });
+            }
+        })();
+        return true; 
+    } else {
+        handler(message, sendResponse, sender); 	// 同步：直接執行，回傳 false
+        return false;
+    }
 });
+
 
 // ─── 快捷鍵監聽 ──────────────────────────────────────────
 chrome.commands.onCommand.addListener((command) => {
@@ -779,25 +808,49 @@ async function runSyncQueue() {
 function syncOnePage(type, url) {
     return new Promise((resolve) => {
         chrome.tabs.create({ url, active: false }, (tab) => {
-            const onReady = (message, sender) => {
-                if (message.action !== "CONTENT_READY" || sender.tab?.id !== tab.id) return;
-                chrome.runtime.onMessage.removeListener(onReady);
-                clearTimeout(fallback);
+            let syncDone = false;
 
-                setTimeout(async () => {
-                    settings.lastSync[type] = Date.now();
-                    saveStorage();
-                    await chrome.tabs.remove(tab.id).catch(() => {});
-                    resolve();
-                }, 4000);
+            const onMessage = (message, sender) => {
+                if (sender.tab?.id !== tab.id) return;
+
+                if (message.action === "CONTENT_READY") {
+                    clearTimeout(fallback);
+                }
+
+                // 收到這個代表 content script 的同步流程跑完了
+                if (message.action === "EXTRACT_ROW_SNAPSHOT" && message.type === type) {
+                    syncDone = true;
+                    clearTimeout(syncFallback);
+                    setTimeout(async () => {
+                        chrome.runtime.onMessage.removeListener(onMessage);
+                        settings.lastSync[type] = Date.now();
+                        saveStorage();
+                        await chrome.tabs.remove(tab.id).catch(() => {});
+                        resolve();
+                    }, 500); // 給 SUBMIT_NEW_ITEMS 一點時間跑完
+                }
             };
-            chrome.runtime.onMessage.addListener(onReady);
+            chrome.runtime.onMessage.addListener(onMessage);
 
+            // 兜底：12秒沒收到任何東西就放棄
             const fallback = setTimeout(async () => {
-                chrome.runtime.onMessage.removeListener(onReady);
+                chrome.runtime.onMessage.removeListener(onMessage);
                 await chrome.tabs.remove(tab.id).catch(() => {});
                 resolve();
             }, 12000);
+
+            // 收到 CONTENT_READY 後 6 秒還沒同步完也放棄
+            let syncFallback;
+            const onReady = (message, sender) => {
+                if (message.action !== "CONTENT_READY" || sender.tab?.id !== tab.id) return;
+                syncFallback = setTimeout(async () => {
+                    if (syncDone) return;
+                    chrome.runtime.onMessage.removeListener(onMessage);
+                    await chrome.tabs.remove(tab.id).catch(() => {});
+                    resolve();
+                }, 6000);
+            };
+            chrome.runtime.onMessage.addListener(onReady);
         });
     });
 }

@@ -61,28 +61,103 @@
     const initialStore = {};
     let seqCounter = 1;
 
-    const tagOptions = Array.from(selTag.options).filter(o => o.id?.startsWith('Building'));
 
     // ── 雙層巢狀迴圈 ─────────────────────────────────────
-    for (const tagOpt of tagOptions) {
-        // 點選棟別
-        selTag.value = tagOpt.value;
-        selTag.dispatchEvent(new Event('change', { bubbles: true }));
-        await sleep(600);
+    const safeClickOption = (selectEl, optionEl) => {
+        // 1. 強制改變 DOM 選擇狀態
+        optionEl.selected = true;
+        selectEl.value = optionEl.value;
+        
+        // 2. 順序發送完整的滑鼠事件流
+        const eventTypes = ['mousedown', 'mouseup', 'click'];
+        for (const type of eventTypes) {
+            const mouseEvt = new MouseEvent(type, { bubbles: true, cancelable: true, view: window });
+            optionEl.dispatchEvent(mouseEvt);
+            selectEl.dispatchEvent(mouseEvt);
+        }
+        
+        // 3. 觸發最終的變更事件
+        selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+    };
 
-        const floorOptions = Array.from(selFloor.options).filter(o => o.id?.startsWith('Floor'));
+    // ── 雙層巢狀迴圈（全面改用無敵點擊與結構偵測） ────────────────
+    
+    // 抓取所有大樓 option
+    const tagOptions = Array.from(selTag.options).filter(o => o.tagName === 'OPTION' && o.value && o.value !== '請選擇');
+
+    for (const tagOpt of tagOptions) {
+        setProgress(`正在切換棟別：${tagOpt.textContent.trim()}...`);
+        
+        // 記錄切換前，整個樓層選單的 HTML 結構內容
+        const oldFloorHTML = selFloor.innerHTML;
+
+        // 使用無敵模擬點擊
+        safeClickOption(selTag, tagOpt);
+        
+        // 等待第二欄更新
+        let tagRetry = 0;
+        let hasFloorChanged = false;
+        while (tagRetry < 20) { // 最多等 2 秒
+            await sleep(100);
+            if (selFloor.innerHTML !== oldFloorHTML) {
+                hasFloorChanged = true;
+                break;
+            }
+            tagRetry++;
+        }
+
+        // 確保它不是處於「剛清空」的狀態
+        if (hasFloorChanged) {
+            let loadRetry = 0;
+            while (loadRetry < 10) {
+                const currentFloors = Array.from(selFloor.options).filter(o => o.tagName === 'OPTION' && o.value);
+                if (currentFloors.length > 0) break; 
+                await sleep(100);
+                loadRetry++;
+            }
+        } else {
+            // 防呆：如果完全沒變，強制補償等待 300ms
+            await sleep(300);
+        }
+
+        // 動態重新獲取當前大樓下的真實樓層清單
+        const floorOptions = Array.from(selFloor.options).filter(o => o.tagName === 'OPTION' && o.value && o.value !== '請選擇');
 
         for (const floorOpt of floorOptions) {
-            setProgress(`掃描中：${tagOpt.value} ${floorOpt.textContent.trim()}`);
+            setProgress(`掃描中：${tagOpt.textContent.trim()} ➔ ${floorOpt.textContent.trim()}`);
 
-            // 點選樓層
-            selFloor.value = floorOpt.value;
-            selFloor.dispatchEvent(new Event('change', { bubbles: true }));
-            await sleep(500);
+            // 記錄點擊前的舊戶別 HTML 與建立語意核對字串
+            const oldUnitHTML = selUnit.innerHTML;
+            const targetMatchStr = `${tagOpt.value}${floorOpt.value}`; 
 
-            // 抓第三欄所有戶別
-            const unitOptions = Array.from(selUnit.options).filter(o => o.value && o.value !== '請選擇');
-            for (const unitOpt of unitOptions) {
+            // 無敵模擬點擊真實觸發樓層
+            safeClickOption(selFloor, floorOpt);
+
+            // 樓層與戶別等待防線
+            let floorRetry = 0;
+            let currentUnits = [];
+            
+            while (floorRetry < 20) {
+                await sleep(100);
+                currentUnits = Array.from(selUnit.options).filter(o => o.tagName === 'OPTION' && o.value && o.value !== '請選擇');
+                
+                // 檢查點 A：抓到了新資料
+                if (currentUnits.length > 0 && currentUnits[0].textContent.includes(targetMatchStr)) {
+                    break;
+                }
+                
+                // 檢查點 B：防殘留
+                if (selUnit.innerHTML !== oldUnitHTML && currentUnits.length > 0) {
+                    if (currentUnits[0].textContent.includes(tagOpt.value)) {
+                        break;
+                    }
+                }
+                
+                floorRetry++;
+            }
+
+            // 收集第三欄戶別資料
+            for (const unitOpt of currentUnits) {
                 const id  = unitOpt.value;
                 const adr = unitOpt.textContent.trim();
                 if (id && adr && !initialStore[id]) {

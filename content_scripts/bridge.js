@@ -25,7 +25,7 @@ XMLHttpRequest.prototype.send = function(...args) {
     return _send.call(this, ...args);
 };
 
- // getEditRecord 只在 collectionRecord_v2.aspx 才掛
+// getEditRecord 只在 collectionRecord_v2.aspx 才掛
 if (location.href.includes("collectionRecord_v2.aspx")) {
     window.addEventListener("__smartlife_request", async (e) => {
         const { type, id } = e.detail ?? {};

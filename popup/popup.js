@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     chrome.runtime.sendMessage({ action: "GET_POPUP_MODE" }, (res) => {
         if (chrome.runtime.lastError) return;
-        syncToggle.checked = res?.enabled ?? false;
+        syncToggle.checked = res?.syncEnabled ?? false;  // 修正這裡
         renderSyncTimes(res?.lastSync ?? {});
     });
 
@@ -80,9 +80,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const d = new Date(ts);
             return `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
         };
-        timeUnreceived.textContent = `📦 ${fmt(lastSync.unreceived)}`;
-        timeReturns.textContent    = `🔄📦 ${fmt(lastSync.returns)}`;
-        timeCollection.textContent = `🛍️💰 ${fmt(lastSync.collection)}`;
+        timeUnreceived.textContent = `📦包 ${fmt(lastSync.unreceived)}`;
+        timeReturns.textContent    = `🔄退 ${fmt(lastSync.returns)}`;
+        timeCollection.textContent = `🛍️寄 ${fmt(lastSync.collection)}`;
     }
 
     // --- API 儲存按鈕 ---

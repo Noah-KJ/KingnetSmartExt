@@ -15,7 +15,7 @@ export async function handlePackageTask(index) {
 
 export async function handleFacilityTask(slot) {
 	if (slot === 99) {
-		const leaveBtn = await waitFor("id", "adLeaveListBtn", 0, 8000);
+		const leaveBtn = await waitFor("id", "adLeaveListBtn", 0, 5000);
 		return leaveBtn?.click();
 	}
 	const infoBtn = await waitFor("class", ".btn.btn-info.btn-md", slot);

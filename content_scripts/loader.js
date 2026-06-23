@@ -20,8 +20,7 @@
     const getURL = (path) => chrome.runtime.getURL(`content_scripts/${path}`);
 
     // --- 0. 確認 RTStore 是否有住戶資料 ---
-    const { data: rtData } = await chrome.runtime.sendMessage({ action: "GET_RTSTORE" });
-    const hasRTStore = rtData && Object.keys(rtData).length > 0;
+    const hasRTStore = await chrome.runtime.sendMessage({ action: "CHECK_RTSTORE" });
 
     if (!hasRTStore) {
         if (url.includes('postalList.aspx')) {

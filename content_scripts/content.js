@@ -47,7 +47,7 @@ async function runSyncFlow(listType) {
 		// 向 Background 送入 id+memo 快照；
 		// background 自行比對 memo 差異並 patch ItemStore，回傳需要完整解析的 newIds
 		const { newIds, isFirstLoad } = await chrome.runtime.sendMessage({
-			action: "QUERY_ALL_IDS_AND_SNAPSHOT",
+			action: "EXTRACT_ALL_ROW_SNAPSHOT",
 			type:   listType,
 			rows,   // [{ id, loc, memo, cash }, ...]
 		});
