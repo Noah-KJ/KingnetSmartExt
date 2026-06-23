@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 從 background 載入資料
     chrome.runtime.sendMessage({ action: "GET_RTSTORE" }, (response) => {
-        if (response?.data) initialByStore(response.data);
+        if (response?.data) buildTableFromStore(response.data);
     });
 
     // 排序按鈕
@@ -105,26 +105,45 @@ const nameTagClass = (note, pvt) =>
     note ? 'name-tag note' : pvt ? 'name-tag pvt' : 'name-tag';
 
 // ── 初始化表格 ────────────────────────────────────────────────────────────────
-function initialByStore(data) {
-    document.querySelectorAll('#residentBody tr').forEach(row => {
-        const info = data[row.id];
-        if (!info) return;
+function buildTableFromStore(data) {
+    const tbody = document.getElementById('residentBody');
+    tbody.innerHTML = '';
 
-        row.cells[0].innerText = info.odr || "";
+    // 依 odr 排序
+    const entries = Object.entries(data)
+        .sort((a, b) => (a[1].odr || "").localeCompare(b[1].odr || "", undefined, { numeric: true }));
 
+    const frag = document.createDocumentFragment();
+
+    for (const [id, info] of entries) {
+        const tr = document.createElement('tr');
+        tr.id = id;
+
+        // 序號欄
+        const tdOdr = document.createElement('td');
+        tdOdr.textContent = info.odr || "";
+
+        // 地址欄
+        const tdAdr = document.createElement('td');
         const tag        = isExpired(info.tagDelDate) ? "" : (info.tag        || "");
         const tagDelDate = isExpired(info.tagDelDate) ? "" : (info.tagDelDate || "");
-        setupAddrCell(row.cells[1], info.adr || "", tag, tagDelDate);
+        setupAddrCell(tdAdr, info.adr || "", tag, tagDelDate);
 
-        const frag = document.createDocumentFragment();
+        // 姓名欄
+        const tdNames = document.createElement('td');
+        const nameFrag = document.createDocumentFragment();
         (info.users || []).forEach(item => {
             const note    = isExpired(item.delDate) ? "" : (item.note    || "");
             const delDate = isExpired(item.delDate) ? "" : (item.delDate || "");
-            frag.appendChild(createNameSpan({ ...item, note, delDate }));
+            nameFrag.appendChild(createNameSpan({ ...item, note, delDate }));
         });
-        row.cells[2].textContent = '';
-        row.cells[2].appendChild(frag);
-    });
+        tdNames.appendChild(nameFrag);
+
+        tr.append(tdOdr, tdAdr, tdNames);
+        frag.appendChild(tr);
+    }
+
+    tbody.appendChild(frag);
 }
 
 // ── 地址欄設定 ────────────────────────────────────────────────────────────────

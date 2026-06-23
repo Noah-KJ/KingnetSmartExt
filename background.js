@@ -17,14 +17,17 @@
  */
 
 // ─── 常數 ────────────────────────────────────────────────
-let printApi = ""; // 持久化，由使用者在 popup 設定
 const FACILITY_URL = "https://www.kingnetsmart.com.tw/community/reservation_v2.aspx";
 const PACKAGE_URL  = "https://www.kingnetsmart.com.tw/community/postalList.aspx";
+const COLLECT_URL  = "https://www.kingnetsmart.com.tw/community/collectionRecord_v2.aspx";
+const RETURN_URL   = "https://www.kingnetsmart.com.tw/community/postalReturnList.aspx";
 
-const SYNC_URL_COL   = "https://www.kingnetsmart.com.tw/community/collectionRecord_v2.aspx";
-const SYNC_ALARM    = "autoSyncAlarm";
-const ALERT_ALARM   = "alarmCheck";
-const CLEANUP_ALARM = "cleanupAlarm";
+// ─── 自動監測 ────────────────────────────────────────────
+const SYNC_TARGETS = [
+    { type: "unreceived", url: PACKAGE_URL },
+    { type: "returns",    url: RETURN_URL  },
+    { type: "collection", url: COLLECT_URL },
+];
 
 
 // 溫層代碼 → 標籤文字（常溫為 "" 不顯示）
@@ -71,15 +74,18 @@ const STORAGE_KEYS = [
 ];
 
 // ─── 狀態 ────────────────────────────────────────────────
+let printApi = ""; // 持久化，由使用者在 popup 設定
+
 // listStorage：三個官方清單的 id Set，初始含 "0" 代表尚未載入（首刷標記）
 let listStorage = Object.fromEntries(OFFICAL_KEYS.map(k => [k, new Set(["0"])]));
 
 const settings = {
-    popupMode:       0,      // Mode 00 自動列印開關
+    popupMode: 0,
+    syncEnabled: false,
+    lastSync: { unreceived: null, returns: null, collection: null },
 };
 
-let alertTabId    = null;   // 鬧鈴 tab，null = 未開啟
-let autoSyncTabId = null;   // 本週期 tab id，null = 閒置
+let syncRunning = false;
 
 let ItemStore   = {};    // 包裹 / 退件 / 寄物的完整資料快取
 let InEStore    = {};    // 收付清單，key = a_id
@@ -163,11 +169,13 @@ const MESSAGE_HANDLERS = {
 	 * [popup.js] 設定彈窗狀態（模式 + 開關）
 	 */
 	SET_POPUP_MODE({ value }, sendResponse) {
-		if (value.mode !== undefined) {
-			settings.popupMode = value.mode;
+		if (value.mode        !== undefined) settings.popupMode    = value.mode;
+		if (value.syncEnabled !== undefined) {
+			settings.syncEnabled = value.syncEnabled;
+			value.syncEnabled ? startAutoSync() : stopAutoSync();
 		}
 		saveStorage();
-		sendResponse({ status: 'success' });
+		sendResponse({ status: "success" });
 	},
 
 	/**
@@ -623,11 +631,6 @@ const MESSAGE_HANDLERS = {
 		saveStorage();
 		sendResponse({ status: "success" });
 	},
-
-	ALERT_DISMISSED(message, sendResponse) {
-		alertTabId = null;
-		sendResponse({});
-	},
 };
 
 // 統一訊息入口：查表派發，async handler 包一層 IIFE 確保 sendResponse 保持開放
@@ -744,6 +747,59 @@ async function callPrintServer(payload) {
 	});
 	if (!res.ok) throw new Error(`HTTP ${res.status}`);
 	return res.json();
+}
+
+// ─── 自動監測 ────────────────────────────────────────────
+function startAutoSync() {
+    chrome.alarms.create("autoSync", { periodInMinutes: 5 });
+    runSyncQueue();
+}
+
+function stopAutoSync() {
+    chrome.alarms.clear("autoSync");
+    syncRunning = false;
+}
+
+chrome.alarms.onAlarm.addListener((alarm) => {
+    if (alarm.name === "autoSync" && settings.syncEnabled) runSyncQueue();
+});
+
+async function runSyncQueue() {
+    if (syncRunning || !settings.syncEnabled) return;
+    syncRunning = true;
+
+    for (const { type, url } of SYNC_TARGETS) {
+        if (!settings.syncEnabled) break;
+        await syncOnePage(type, url);
+    }
+
+    syncRunning = false;
+}
+
+function syncOnePage(type, url) {
+    return new Promise((resolve) => {
+        chrome.tabs.create({ url, active: false }, (tab) => {
+            const onReady = (message, sender) => {
+                if (message.action !== "CONTENT_READY" || sender.tab?.id !== tab.id) return;
+                chrome.runtime.onMessage.removeListener(onReady);
+                clearTimeout(fallback);
+
+                setTimeout(async () => {
+                    settings.lastSync[type] = Date.now();
+                    saveStorage();
+                    await chrome.tabs.remove(tab.id).catch(() => {});
+                    resolve();
+                }, 4000);
+            };
+            chrome.runtime.onMessage.addListener(onReady);
+
+            const fallback = setTimeout(async () => {
+                chrome.runtime.onMessage.removeListener(onReady);
+                await chrome.tabs.remove(tab.id).catch(() => {});
+                resolve();
+            }, 12000);
+        });
+    });
 }
 
 // ─── 工具函數 ────────────────────────────────────────────

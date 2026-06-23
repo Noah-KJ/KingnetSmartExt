@@ -100,7 +100,9 @@
 		currentId = '';
 	}
 
-	overlay.addEventListener('click', close);
+	box.addEventListener('click', (e) => {
+		if (e.target === box) close();
+	});
 	document.getElementById('slh-lightbox-close').addEventListener('click', close);
 
 	// 委派：攔截所有我們注入的圖示點擊

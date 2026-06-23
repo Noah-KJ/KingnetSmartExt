@@ -27,6 +27,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const apiSetupSection  = document.getElementById("apiSetupSection"); // API 輸入區塊
     const apiInput         = document.getElementById("apiInput");
     const apiSaveBtn       = document.getElementById("apiSaveBtn");
+    const syncToggle        = document.getElementById("syncToggle");
+    const timeUnreceived    = document.getElementById("timeUnreceived");
+    const timeReturns       = document.getElementById("timeReturns");
+    const timeCollection    = document.getElementById("timeCollection");
 
     // ─── 全域狀態 ──────────────────────────────────────────
     let currentMode   = 0;
@@ -35,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ─── 1. 初始化程序 ──────────────────────────────────────
 
-    // 列印區塊顯示控制
+    // --- 列印區塊顯示控制 ---
     function showPrintSection() {
         printSection.style.display    = "";
         apiSetupSection.style.display = "none";
@@ -46,7 +50,15 @@ document.addEventListener("DOMContentLoaded", () => {
         apiInput.value = currentUrl;
     }
 
-    // 啟動時先確認 printApi
+    // --- 狀態恢復 ---
+    chrome.storage.local.get("lastMode", ({ lastMode = 0 }) => {
+        const startMode = lastMode % TOTAL_MODES;
+        currentMode = startMode;
+        boardInner.style.transition = "none";
+        boardInner.style.transform  = `translateY(-${startMode * PANEL_HEIGHT}px)`;
+        syncModeToBackend(startMode);
+    });
+
     chrome.runtime.sendMessage({ action: "GET_PRINT_API" }, ({ printApi }) => {
         if (printApi) {
             showPrintSection();
@@ -55,7 +67,25 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // API 儲存按鈕
+    chrome.runtime.sendMessage({ action: "GET_POPUP_MODE" }, (res) => {
+        if (chrome.runtime.lastError) return;
+        syncToggle.checked = res?.enabled ?? false;
+        renderSyncTimes(res?.lastSync ?? {});
+    });
+
+    // --- 自動監測時間渲染 ---
+    function renderSyncTimes(lastSync) {
+        const fmt = (ts) => {
+            if (!ts) return "--:--";
+            const d = new Date(ts);
+            return `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+        };
+        timeUnreceived.textContent = `📦 ${fmt(lastSync.unreceived)}`;
+        timeReturns.textContent    = `🔄📦 ${fmt(lastSync.returns)}`;
+        timeCollection.textContent = `🛍️💰 ${fmt(lastSync.collection)}`;
+    }
+
+    // --- API 儲存按鈕 ---
     apiSaveBtn.addEventListener("click", async () => {
         const url = apiInput.value.trim();
         if (!url) return;
@@ -80,19 +110,13 @@ document.addEventListener("DOMContentLoaded", () => {
             if (res?.status === "success") showPrintSection();
         });
     });
-    chrome.storage.local.get("lastMode", ({ lastMode = 0 }) => {
-        const startMode = lastMode % TOTAL_MODES;
-        currentMode = startMode;
 
-        boardInner.style.transition = "none";
-        boardInner.style.transform  = `translateY(-${startMode * PANEL_HEIGHT}px)`;
-
-        syncModeToBackend(startMode);
-    });
-
-    // 各欄位初始狀態
-    chrome.runtime.sendMessage({ action: "GET_POPUP_MODE" }, (res) => {
-        if (chrome.runtime.lastError) return;
+    // --- 自動監測開關 ---
+    syncToggle.addEventListener("change", () => {
+        chrome.runtime.sendMessage({
+            action: "SET_POPUP_MODE",
+            value: { syncEnabled: syncToggle.checked }
+        });
     });
 
     // ─── 2. 切換邏輯 (無縫翻牌) ───────────────────────────────
