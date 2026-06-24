@@ -21,12 +21,14 @@
         <p id="init-progress" style="font-size:16px; color:#aaa;">正在開啟選單...</p>
     `;
     document.body.appendChild(overlay);
+
     const setProgress = (msg) => {
         document.getElementById('init-progress').textContent = msg;
     };
 
-    // ── 等待工具 ──────────────────────────────────────────
+    // ── 工具函式 ──────────────────────────────────────────
     const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
     const waitForEl = (selector, timeout = 8000) => new Promise((resolve) => {
         const el = document.querySelector(selector);
         if (el) return resolve(el);
@@ -38,13 +40,54 @@
         setTimeout(() => { obs.disconnect(); resolve(null); }, timeout);
     });
 
+    // 觸發 select 的 change 事件（option 本身不接受點擊，直接改值再發事件）
+    const safeClick = (selectEl, optionEl) => {
+        optionEl.selected = true;
+        selectEl.value = optionEl.value;
+
+        for (const type of ['mousedown', 'mouseup', 'click']) {
+            const evt = new MouseEvent(type, { bubbles: true, cancelable: true, view: window });
+            optionEl.dispatchEvent(evt);
+            selectEl.dispatchEvent(evt);
+        }
+
+        selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+
+    // 等待某個 select 的 innerHTML 發生變化
+    const waitForChange = async (el, oldHTML, timeout = 2000) => {
+        const start = Date.now();
+        while (Date.now() - start < timeout) {
+            await sleep(100);
+            if (el.innerHTML !== oldHTML) return true;
+        }
+        return false;
+    };
+
+    const waitForStable = async (el, timeout = 1000) => {
+        const start = Date.now();
+        let lastHTML = el.innerHTML;
+        while (Date.now() - start < timeout) {
+            await sleep(100);
+            const currentHTML = el.innerHTML;
+            if (currentHTML !== lastHTML) {
+                lastHTML = currentHTML; // 還在變，重置
+            } else if (currentHTML !== '') {
+                return; // 穩定了
+            }
+        }
+    };
+
+    // 過濾出真實的 option（排除 optgroup 與佔位符）
+    const getOptions = (el) =>
+        Array.from(el.options).filter(o => o.value && o.value !== '請選擇');
+
     // ── 觸發三欄選單（同 package-for-address）────────────
     const fab = await waitForEl('#oneClickLabel');
     fab?.click();
     await sleep(500);
 
     const masterDiv = await waitForEl('#masterVerifyTypeDiv');
-    // index 2 = 第三個子元素 = 戶別選取
     const btn = masterDiv?.children?.[1]?.children?.[0]?.children?.[2];
     btn?.click();
     await sleep(800);
@@ -58,106 +101,25 @@
         return;
     }
 
+    // ── 雙層巢狀迴圈掃描 ─────────────────────────────────
     const initialStore = {};
     let seqCounter = 1;
 
+    for (const tagOpt of getOptions(selTag)) {
+        setProgress(`切換棟別：${tagOpt.textContent.trim()}`);
+        const oldFloor = selFloor.innerHTML;
+        safeClick(selTag, tagOpt);
+        await waitForChange(selFloor, oldFloor);
+        await sleep(100); // 讓樓層清單穩定
 
-    // ── 雙層巢狀迴圈 ─────────────────────────────────────
-    const safeClickOption = (selectEl, optionEl) => {
-        // 1. 強制改變 DOM 選擇狀態
-        optionEl.selected = true;
-        selectEl.value = optionEl.value;
-        
-        // 2. 順序發送完整的滑鼠事件流
-        const eventTypes = ['mousedown', 'mouseup', 'click'];
-        for (const type of eventTypes) {
-            const mouseEvt = new MouseEvent(type, { bubbles: true, cancelable: true, view: window });
-            optionEl.dispatchEvent(mouseEvt);
-            selectEl.dispatchEvent(mouseEvt);
-        }
-        
-        // 3. 觸發最終的變更事件
-        selectEl.dispatchEvent(new Event('change', { bubbles: true }));
-    };
+        for (const floorOpt of getOptions(selFloor)) {
+            setProgress(`掃描：${tagOpt.textContent.trim()} ➔ ${floorOpt.textContent.trim()}`);
+            const oldUnit = selUnit.innerHTML;
+            safeClick(selFloor, floorOpt);
+            await waitForChange(selUnit, oldUnit);
+            await waitForStable(selUnit); // 等第三欄穩定再抓
 
-    // ── 雙層巢狀迴圈（全面改用無敵點擊與結構偵測） ────────────────
-    
-    // 抓取所有大樓 option
-    const tagOptions = Array.from(selTag.options).filter(o => o.tagName === 'OPTION' && o.value && o.value !== '請選擇');
-
-    for (const tagOpt of tagOptions) {
-        setProgress(`正在切換棟別：${tagOpt.textContent.trim()}...`);
-        
-        // 記錄切換前，整個樓層選單的 HTML 結構內容
-        const oldFloorHTML = selFloor.innerHTML;
-
-        // 使用無敵模擬點擊
-        safeClickOption(selTag, tagOpt);
-        
-        // 等待第二欄更新
-        let tagRetry = 0;
-        let hasFloorChanged = false;
-        while (tagRetry < 20) { // 最多等 2 秒
-            await sleep(100);
-            if (selFloor.innerHTML !== oldFloorHTML) {
-                hasFloorChanged = true;
-                break;
-            }
-            tagRetry++;
-        }
-
-        // 確保它不是處於「剛清空」的狀態
-        if (hasFloorChanged) {
-            let loadRetry = 0;
-            while (loadRetry < 10) {
-                const currentFloors = Array.from(selFloor.options).filter(o => o.tagName === 'OPTION' && o.value);
-                if (currentFloors.length > 0) break; 
-                await sleep(100);
-                loadRetry++;
-            }
-        } else {
-            // 防呆：如果完全沒變，強制補償等待 300ms
-            await sleep(300);
-        }
-
-        // 動態重新獲取當前大樓下的真實樓層清單
-        const floorOptions = Array.from(selFloor.options).filter(o => o.tagName === 'OPTION' && o.value && o.value !== '請選擇');
-
-        for (const floorOpt of floorOptions) {
-            setProgress(`掃描中：${tagOpt.textContent.trim()} ➔ ${floorOpt.textContent.trim()}`);
-
-            // 記錄點擊前的舊戶別 HTML 與建立語意核對字串
-            const oldUnitHTML = selUnit.innerHTML;
-            const targetMatchStr = `${tagOpt.value}${floorOpt.value}`; 
-
-            // 無敵模擬點擊真實觸發樓層
-            safeClickOption(selFloor, floorOpt);
-
-            // 樓層與戶別等待防線
-            let floorRetry = 0;
-            let currentUnits = [];
-            
-            while (floorRetry < 20) {
-                await sleep(100);
-                currentUnits = Array.from(selUnit.options).filter(o => o.tagName === 'OPTION' && o.value && o.value !== '請選擇');
-                
-                // 檢查點 A：抓到了新資料
-                if (currentUnits.length > 0 && currentUnits[0].textContent.includes(targetMatchStr)) {
-                    break;
-                }
-                
-                // 檢查點 B：防殘留
-                if (selUnit.innerHTML !== oldUnitHTML && currentUnits.length > 0) {
-                    if (currentUnits[0].textContent.includes(tagOpt.value)) {
-                        break;
-                    }
-                }
-                
-                floorRetry++;
-            }
-
-            // 收集第三欄戶別資料
-            for (const unitOpt of currentUnits) {
+            for (const unitOpt of getOptions(selUnit)) {
                 const id  = unitOpt.value;
                 const adr = unitOpt.textContent.trim();
                 if (id && adr && !initialStore[id]) {

@@ -5,7 +5,7 @@
  * ╚══════════════════════════════════════════════════════╝
  *
  * 訊息來源
- *  loader.js     →  GET_RTSTORE
+ *  loader.js     →  CHECK_RTSTORE
  *  content.js    →  CONTENT_READY | EXTRACT_ALL_ROW_SNAPSHOT | SUBMIT_NEW_ITEMS
  *  sync.js       →  EXTRACT_ALL_ROW_SNAPSHOT | SUBMIT_NEW_ITEMS | SUBMIT_CASH_RECORDS
  *  popup.js      →  GET_SELECTED_IDS | SEND_TO_PRINTER | 
@@ -434,9 +434,9 @@ const MESSAGE_HANDLERS = {
 	/**
 	 * [rtscript.js] 住戶標記初始化：獲取 RTStore
 	 */
-	CHECK_RTSTORE(message, sendResponse) {
-		const hasRTStore = RTStore && Object.keys(RTStore).length > 0;
-		sendResponse( hasRTStore );
+	async CHECK_RTSTORE(message, sendResponse) {
+		await storageReady;
+		sendResponse(Object.keys(RTStore).length > 0);
 	},
 
 	/**

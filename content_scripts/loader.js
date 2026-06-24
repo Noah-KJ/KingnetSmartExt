@@ -11,23 +11,27 @@
         new Promise(resolve =>
             window.addEventListener("__smartlife_page_ready", resolve, { once: true })
         ),
-        new Promise(resolve => setTimeout(() => resolve("timeout"), 4000))
+        new Promise(resolve => setTimeout(() => resolve("timeout"), 10000)) // 延長到10秒
     ]);
 
-    if (ready === "timeout") return; // 未登入或認證失效，靜默退出
+    if (ready === "timeout") return;
 
     const url = location.href;
     const getURL = (path) => chrome.runtime.getURL(`content_scripts/${path}`);
 
     // --- 0. 確認 RTStore 是否有住戶資料 ---
-    const hasRTStore = await chrome.runtime.sendMessage({ action: "CHECK_RTSTORE" });
+    // 最多重試 3 次，間隔 1 秒，防止 service worker 剛重啟還沒恢復完
+    let hasRTStore = false;
+    for (let i = 0; i < 3; i++) {
+        hasRTStore = await chrome.runtime.sendMessage({ action: "CHECK_RTSTORE" });
+        if (hasRTStore) break;
+        await new Promise(r => setTimeout(r, 1000));
+    }
 
     if (!hasRTStore) {
         if (url.includes('postalList.aspx')) {
-            // 已在包裹頁，執行自動掃描
             await import(getURL('init-store.js'));
         } else {
-            // 跳轉到包裹頁觸發掃描
             location.href = 'https://www.kingnetsmart.com.tw/community/postalList.aspx';
         }
         return;
